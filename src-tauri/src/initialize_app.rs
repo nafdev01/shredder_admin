@@ -37,7 +37,6 @@ impl fmt::Display for CustomError {
     }
 }
 
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Admin {
     pub adminid: i32,
@@ -57,7 +56,7 @@ pub struct Department {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Search {
     pub searchid: i32,
-    pub searcher: String,
+    pub searcher: i32,
     pub word: String,
     pub directory: String,
     pub no_of_files: i32,
@@ -90,7 +89,6 @@ pub fn initialize_database() -> Result<(), CustomError> {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
         ",
     )?;
-
 
     client.batch_execute(
         "CREATE TABLE IF NOT EXISTS admins (

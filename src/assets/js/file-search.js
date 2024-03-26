@@ -1,5 +1,4 @@
 const { invoke } = window.__TAURI__.core;
-const { open } = window.__TAURI__.dialog;
 
 const SearchSwal = Swal.mixin({
     showConfirmButton: false,
@@ -39,4 +38,79 @@ function formatTimestamp(searched_at) {
     return formattedTimestamp;
 }
 
+
+
+if (document.querySelector('#history-table')) {
+    try {
+        const historyTableBody = document.querySelector('#history-table-body');
+        const userName = localStorage.getItem('adminUsername');
+        const adminId = parseInt(localStorage.getItem('adminId'));
+
+        SearchSwal.fire({
+            title: 'Fetching search history ...',
+            html: `Please wait while we fetch search history for <b>${userName}</b>`
+        });
+
+        invoke('get_search_history', { adminid: parseInt(adminId) }).then(history => {
+
+            SearchSwal.close();
+
+            if (history.length === 0) {
+                const noHistoryElement = document.createElement('p');
+                noHistoryElement.textContent = 'No search history';
+                historyTableBody.appendChild(noHistoryElement);
+            }
+            else {
+                history.forEach(search => {
+                    const row = document.createElement('tr');
+
+                    const searcherCell = document.createElement('th');
+                    searcherCell.textContent = search.searcher;
+                    searcherCell.classList.add('cell');
+                    searcherCell.setAttribute('scope', 'row');
+                    row.appendChild(searcherCell);
+
+                    const wordCell = document.createElement('th');
+                    wordCell.textContent = search.word;
+                    wordCell.classList.add('cell');
+                    wordCell.setAttribute('scope', 'row');
+                    row.appendChild(wordCell);
+
+                    const directoryCell = document.createElement('td');
+                    directoryCell.textContent = search.directory;
+                    directoryCell.classList.add('cell');
+                    row.appendChild(directoryCell);
+
+                    const noFilesCell = document.createElement('td');
+                    noFilesCell.textContent = search.no_of_files;
+                    noFilesCell.classList.add('cell');
+                    row.appendChild(noFilesCell);
+
+                    const searchedAtCell = document.createElement('td');
+                    searchedAtCell.textContent = formatTimestamp(search.searched_at);
+                    searchedAtCell.classList.add('cell');
+                    row.appendChild(searchedAtCell);
+
+
+                    historyTableBody.appendChild(row);
+                });
+            }
+        }).catch(error => {
+
+            SearchSwal.close();
+
+            Swal.fire({
+                icon: 'error',
+                title: error,
+            });
+        });
+
+    } catch (error) {
+        // output the error
+        Swal.fire({
+            icon: 'error',
+            title: error.message
+        });
+    }
+}
 

@@ -27,7 +27,6 @@ if (isAdminLoggedIn()) {
 
     var adminName = null;
     var adminEmail = null;
-    var adminPhoneNo = null;
     var adminDepartment = null;
 
     AccountSwal.fire({
@@ -72,6 +71,7 @@ if (isAdminLoggedIn()) {
         const adminUsername = adminUsernameInput.value;
         const adminName = adminNameInput.value;
         const adminEmail = adminEmailInput.value;
+        const adminPhoneNo = adminPhoneNoInput.value;
 
         AccountSwal.fire({
             title: 'Updating admin profile ...',
