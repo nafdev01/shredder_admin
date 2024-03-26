@@ -3,7 +3,7 @@ use tokio_postgres::NoTls;
 
 
 #[tauri::command]
-pub async fn get_search_history(searcher: i32) -> Result<Vec<Search>, CustomError> {
+pub async fn get_search_history(admin: i32) -> Result<Vec<Search>, CustomError> {
     let (client, connection) = tokio_postgres::connect(
         "postgresql://priestley:PassMan2024@64.23.233.35/shredder",
         NoTls,

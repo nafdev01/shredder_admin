@@ -1,12 +1,29 @@
 const { invoke } = window.__TAURI__.core;
 
+const ShredderSwal = Swal.mixin({
+    showConfirmButton: false,
+    didOpen: () => {
+        Swal.showLoading();
+        Swal.getPopup().querySelector("b");
+    },
+});
+
 if (localStorage.getItem('adminId')) {
     const adminId = parseInt(localStorage.getItem('adminId'));
 
     const searchType = document.getElementById('search-type').value;
 
     try {
+
+        ShredderSwal.fire({
+            title: 'Fetching shred requests ...',
+            html: `Please wait while we fetch ${searchType} shred requests <b></b>`,
+        });
+
         invoke(`get_${searchType}_shred_requests`, { requestto: adminId }).then(shredRequests => {
+
+            ShredderSwal.close();
+
             if (shredRequests.length === 0) {
                 document.getElementById('shred-request-table').innerHTML = `
                     <div class="alert alert-info" role="alert">
@@ -72,6 +89,9 @@ if (localStorage.getItem('adminId')) {
             shredRequestTable.innerHTML = tableContent;
         });
     } catch (error) {
+
+        ShredderSwal.close();
+
         Swal.fire({
             title: 'Error!',
             text: `${error}`,
@@ -96,7 +116,16 @@ function approveShredRequest(approvebutton) {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
+
+            ShredderSwal.fire({
+                title: 'Approving shred request ...',
+                html: `Please wait while we approve the shred request for the file: <b>${filepath}</b>`,
+            });
+        
             invoke('update_shred_request', { requestid: parseInt(fileId), requeststatus: "Approved" }).then(response => {
+
+                ShredderSwal.close();
+
                 if (response == "Success") {
                     Swal.fire({
                         title: 'Approved!',
@@ -113,6 +142,9 @@ function approveShredRequest(approvebutton) {
                     });
                 }
             }).catch(error => {
+
+                ShredderSwal.close();
+
                 Swal.fire({
                     title: 'Error!',
                     text: `${error}`,
@@ -138,7 +170,16 @@ function denyShredRequest(denyButton) {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
+
+            ShredderSwal.fire({
+                title: 'Denying shred request ...',
+                html: `Please wait while we deny the shred request for the file: <b>${filepath}</b>`,
+            });
+
             invoke('update_shred_request', { requestid: parseInt(fileId), requeststatus: "Denied" }).then(response => {
+
+                ShredderSwal.close();
+
                 if (response == "Success") {
                     Swal.fire({
                         title: 'Denied!',
@@ -155,6 +196,9 @@ function denyShredRequest(denyButton) {
                     });
                 }
             }).catch(error => {
+
+                ShredderSwal.close();
+
                 Swal.fire({
                     title: 'Error!',
                     text: `${error}`,
@@ -163,60 +207,4 @@ function denyShredRequest(denyButton) {
             });
         }
     });
-}
-
-
-
-function completeShredRequest(denyButton) {
-    const filepath = denyButton.getAttribute('data-file');
-    const fileId = denyButton.getAttribute('data-file-id');
-
-    Swal.fire({
-        title: 'Are you sure?',
-        html: `You are about to shred the file: <b>${filepath}</b>`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: 'green',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Shred',
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            invoke('complete_shred_request', { shredfile: filepath })
-                .then(response => {
-                    if (response == "success") {
-                        Swal.fire({
-                            title: 'Shredded!',
-                            text: `The file: ${filepath} has been shredded.`,
-                            icon: 'success'
-                        }).then(() => {
-                            location.reload();
-                        });
-                    }
-                    else {
-                        Swal.fire({
-                            title: 'Failed!',
-                            text: `The file: ${filepath} could not be shredded. Error: ${response} `,
-                            icon: 'error'
-                        });
-                    }
-                }).catch(error => {
-                    if (error.toString().toLowerCase().includes('no such file or directory')) {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: `File does not exist`,
-                            icon: 'error'
-                        });
-                        return;
-
-                    } else {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: `An unexpected error occurred: ${error}`,
-                            icon: 'error'
-                        });
-                    }
-                });
-        }
-    })
 }

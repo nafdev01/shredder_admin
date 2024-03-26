@@ -1,11 +1,9 @@
-
 // function to check if admin is logged in
 function loginAdmin(adminId, adminUsername, adminFullName) {
     localStorage.setItem('adminId', `${adminId}`);
     localStorage.setItem('adminUsername', `${adminUsername}`);
     localStorage.setItem('adminName', `${adminFullName}`);
 }
-
 
 // function to logout admin
 function logoutAdmin() {
@@ -14,7 +12,6 @@ function logoutAdmin() {
     localStorage.removeItem('adminName');
     window.location.href = 'index.html';
 }
-
 
 // function to check if admin is logged in
 function isAdminLoggedIn() {

@@ -1,4 +1,3 @@
-
 function confirmAdminLogout() {
     Swal.fire({
         title: "Warning!",
